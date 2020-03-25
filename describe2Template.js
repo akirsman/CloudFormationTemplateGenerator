@@ -3,6 +3,7 @@ var fs = require('fs')
 main(process.argv.slice(2));
 
 function main(args) {
+    let outfile = args[0]
     let chunks = [];
     process.stdin.on('readable', () => {
         var chunk;
@@ -13,12 +14,12 @@ function main(args) {
     process.stdin.on('end', () => {
         let data = Buffer.concat(chunks);
         let json = JSON.parse(data);
-        generateEC2Template(json);
+        generateEC2Template(outfile, json);
     });
 }
 
 // write template file
-function generateEC2Template(desc) {
+function generateEC2Template(outfile, desc) {
     // generate template
     var t = {};
     t.AWSTemplateFormatVersion = "2010-09-09";
@@ -52,5 +53,5 @@ function generateEC2Template(desc) {
     });
 
     // write template
-    fs.writeFileSync('template.json', JSON.stringify(t), () => { });
+    fs.writeFileSync(outfile, JSON.stringify(t), () => { });
 }
