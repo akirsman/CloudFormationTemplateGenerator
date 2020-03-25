@@ -1,14 +1,19 @@
 'use strict';
+var fs = require('fs')
 main(process.argv.slice(2));
 
-// read describe file
 function main(args) {
-    var fs = require('fs')
-    fs.readFile('describe.json', 'utf16le', (err, data) => {
-        if (err) throw err;
-        data = data.replace(/^\uFEFF/, '')
-        var desc = JSON.parse(data);
-        generateEC2Template(desc);
+    let chunks = [];
+    process.stdin.on('readable', () => {
+        var chunk;
+        while ((chunk = process.stdin.read()) !== null) {
+            chunks.push(chunk);
+        }
+    });
+    process.stdin.on('end', () => {
+        let data = Buffer.concat(chunks);
+        let json = JSON.parse(data);
+        generateEC2Template(json);
     });
 }
 
@@ -47,6 +52,5 @@ function generateEC2Template(desc) {
     });
 
     // write template
-    var fs = require('fs');
     fs.writeFileSync('template.json', JSON.stringify(t), () => { });
 }
