@@ -3,7 +3,12 @@ var fs = require('fs')
 main(process.argv.slice(2));
 
 function main(args) {
-    let outfile = args[0]
+    if (args.length < 2) {
+        console.log("Expected parameters: <service> <output file>");
+        return
+    }
+    let service = args[0]
+    let outfile = args[1]
     let chunks = [];
     process.stdin.on('readable', () => {
         var chunk;
@@ -14,8 +19,19 @@ function main(args) {
     process.stdin.on('end', () => {
         let data = Buffer.concat(chunks);
         let json = JSON.parse(data);
-        generateEC2Template(outfile, json);
+        generateTemplate(outfile, service, json)
     });
+}
+
+// generate template
+function generateTemplate(outfile, service, json) {
+    switch (service) {
+        case 'ec2':
+            generateEC2Template(outfile, json)
+            break;
+        default:
+            console.log('unknown service: ' + service);
+    }
 }
 
 // write template file
